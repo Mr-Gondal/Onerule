@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import pc from "picocolors";
-import { CONFIG_FILE, DEFAULT_CONFIG, loadConfig } from "./config.js";
+import { CONFIG_FILE, DEFAULT_CONFIG, loadConfig, type Mode } from "./config.js";
 import { TARGETS, type Target } from "./targets.js";
-import { writeFileEnsured } from "./util.js";
+import { injectBlock, writeFileEnsured } from "./util.js";
 
 const STARTER_AGENTS = `# AGENTS.md
 
@@ -34,9 +34,29 @@ interface RenderedOutput {
   content: string;
 }
 
+interface Rendered {
+  outputs: RenderedOutput[];
+  mode: Mode;
+}
+
+/**
+ * Render the on-disk content for one target.
+ * In "block" mode (and when the target supports it) we read the existing file
+ * and inject a managed block, preserving any hand-written content. Otherwise we
+ * render the whole file.
+ */
+function renderTarget(target: Target, body: string, path: string, mode: Mode): string {
+  if (mode === "block" && target.blockable) {
+    const existing = existsSync(path) ? readFileSync(path, "utf8") : "";
+    return injectBlock(existing, body);
+  }
+  return target.render(body);
+}
+
 /** Resolve config + source and render every configured target in memory. */
-function renderAll(cwd: string): RenderedOutput[] {
+function renderAll(cwd: string, modeOverride?: Mode): Rendered {
   const config = loadConfig(cwd);
+  const mode = modeOverride ?? config.mode;
   const sourcePath = resolve(cwd, config.source);
 
   if (!existsSync(sourcePath)) {
@@ -54,14 +74,15 @@ function renderAll(cwd: string): RenderedOutput[] {
       console.log(pc.yellow(`! unknown target "${id}" (skipped)`));
       continue;
     }
+    const path = resolve(cwd, target.outputPath);
     outputs.push({
       target,
-      path: resolve(cwd, target.outputPath),
-      content: target.render(body),
+      path,
+      content: renderTarget(target, body, path, mode),
     });
   }
 
-  return outputs;
+  return { outputs, mode };
 }
 
 /** Create a starter AGENTS.md and onerule.json if they don't exist. */
@@ -88,25 +109,30 @@ export function init(cwd: string = process.cwd()): void {
 }
 
 /** Write every configured target file from the source. */
-export function sync(cwd: string = process.cwd()): void {
-  const outputs = renderAll(cwd);
+export function sync(cwd: string = process.cwd(), modeOverride?: Mode): void {
+  const { outputs, mode } = renderAll(cwd, modeOverride);
 
   for (const out of outputs) {
     writeFileEnsured(out.path, out.content);
+    const how =
+      mode === "block" && out.target.blockable ? pc.dim(" (block)") : pc.dim(" (file)");
     console.log(
-      `${pc.green("✓")} ${out.target.label.padEnd(16)} ${pc.dim(out.target.outputPath)}`,
+      `${pc.green("✓")} ${out.target.label.padEnd(16)} ${pc.dim(out.target.outputPath)}${how}`,
     );
   }
 
-  console.log(pc.green(`\nSynced ${outputs.length} target(s) from AGENTS.md.`));
+  console.log(
+    pc.green(`\nSynced ${outputs.length} target(s) from AGENTS.md `) +
+      pc.dim(`[${mode} mode]`),
+  );
 }
 
 /**
  * Compare on-disk files to freshly rendered output.
  * Returns 0 when everything is in sync, 1 when any target has drifted.
  */
-export function check(cwd: string = process.cwd()): number {
-  const outputs = renderAll(cwd);
+export function check(cwd: string = process.cwd(), modeOverride?: Mode): number {
+  const { outputs } = renderAll(cwd, modeOverride);
   const drift: string[] = [];
 
   for (const out of outputs) {

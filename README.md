@@ -13,7 +13,7 @@ npx onerule check  # CI: fail if they're out of sync
 <!-- TODO: replace with a 45s demo GIF: edit AGENTS.md -> run sync -> 5 files turn green -->
 <!-- ![demo](docs/demo.gif) -->
 
-[![CI](https://github.com/USERNAME/onerule/actions/workflows/ci.yml/badge.svg)](https://github.com/USERNAME/onerule/actions)
+[![CI](https://github.com/Mr-Gondal/Onerule/actions/workflows/ci.yml/badge.svg)](https://github.com/Mr-Gondal/Onerule/actions)
 [![npm](https://img.shields.io/npm/v/onerule.svg)](https://www.npmjs.com/package/onerule)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -38,7 +38,31 @@ OneRule makes `AGENTS.md` the source of truth and generates the rest. One file t
 - ⚡ **Zero config** — `npx onerule init` and go.
 - 🔒 **Local-first** — no API key, no network, your code never leaves your machine.
 - ✅ **CI-ready** — `onerule check` fails the build if rules are stale.
+- ✍️ **Never clobbers your notes** — by default OneRule only manages a marked block; anything you hand-write around it is preserved.
 - 🧩 **Extensible** — adding a new agent is one small entry in `src/targets.ts`.
+
+## Won't overwrite your hand-written rules
+
+By default OneRule writes into a **managed block** and leaves everything else alone:
+
+```markdown
+# My own Claude notes (hand-written, kept forever)
+
+<!-- onerule:start — synced from AGENTS.md by `onerule sync`. -->
+...content generated from AGENTS.md...
+<!-- onerule:end -->
+
+# More of my notes below — also kept
+```
+
+Re-running `sync` only ever touches what's **between the markers**. Prefer OneRule to own the whole file? Use `--file`:
+
+```bash
+npx onerule sync          # managed-block mode (default, safe)
+npx onerule sync --file   # overwrite the entire file
+```
+
+Cursor (`.mdc` frontmatter) and Windsurf always use full-file mode.
 
 ## Install
 
@@ -69,13 +93,13 @@ npx onerule sync
 Output:
 
 ```text
-✓ Claude Code      CLAUDE.md
-✓ Cursor           .cursor/rules/onerule.mdc
-✓ GitHub Copilot   .github/copilot-instructions.md
-✓ Gemini CLI       GEMINI.md
-✓ Windsurf         .windsurfrules
+✓ Claude Code      CLAUDE.md                        (block)
+✓ Cursor           .cursor/rules/onerule.mdc        (file)
+✓ GitHub Copilot   .github/copilot-instructions.md  (block)
+✓ Gemini CLI       GEMINI.md                        (block)
+✓ Windsurf         .windsurfrules                   (file)
 
-Synced 5 target(s) from AGENTS.md.
+Synced 5 target(s) from AGENTS.md [block mode]
 ```
 
 ## Keep it in sync (CI)
@@ -96,16 +120,17 @@ If someone edits `AGENTS.md` without running `sync`, CI goes red and tells them 
 ```json
 {
   "source": "AGENTS.md",
-  "targets": ["claude", "cursor", "copilot", "gemini", "windsurf"]
+  "targets": ["claude", "cursor", "copilot", "gemini", "windsurf"],
+  "mode": "block"
 }
 ```
 
-Drop a target you don't use, or open a PR to add one.
+Drop a target you don't use, set `"mode": "file"` to overwrite whole files, or open a PR to add a target.
 
 ## Roadmap
 
+- [x] Managed-block mode (preserve hand-written sections)
 - [ ] GitHub Action (auto-`sync` on PRs)
-- [ ] Managed-block mode (preserve hand-written sections)
 - [ ] More targets: Codex, Cline, Aider, Zed, JetBrains AI
 - [ ] MCP config sync
 - [ ] Community `AGENTS.md` template registry

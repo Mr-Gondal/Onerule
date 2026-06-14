@@ -2,7 +2,7 @@
 
 > **One-line pitch:** Write `AGENTS.md` once. OneRule syncs your AI coding rules to Claude Code, Cursor, Copilot, Gemini, Windsurf, and more — and fails CI when they drift.
 
-Status: **v0.1 (MVP in progress)**
+Status: **v0.2 (managed-block mode shipped)**
 Author: Mr-Gondal
 License: MIT
 Last updated: 2026-06-14
@@ -156,8 +156,8 @@ PROJECT.md        # this file
 - [ ] Polished README with demo GIF
 
 ### v0.2 — adoption
+- [x] **Managed-block mode** — inject rules between `<!-- onerule -->` markers so hand-written sections of `CLAUDE.md` are preserved (now the default; `--file` overrides).
 - [ ] **GitHub Action** (`onerule-action`) that runs `check` on PRs and can auto-commit `sync`.
-- [ ] **Managed-block mode** — inject rules between markers so hand-written sections of `CLAUDE.md` are preserved.
 - [ ] `--write`/`--check` flags, `--target` filter, `--dry-run`.
 - [ ] More targets: Codex, Cline, Aider, Zed, JetBrains AI, `.cursorrules` legacy.
 - [ ] Watch mode: `onerule sync --watch`.

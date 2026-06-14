@@ -3,8 +3,15 @@ export interface Target {
   label: string;
   /** Output path relative to cwd. */
   outputPath: string;
-  /** Transform the source body into this tool's file format. */
+  /** Transform the source body into this tool's file format (full-file / "file" mode). */
   render: (body: string) => string;
+  /**
+   * Whether this target supports managed-block injection ("block" mode).
+   * Markdown-style files (CLAUDE.md, GEMINI.md, copilot) do — developers often
+   * hand-edit them, so we preserve their content. Files with a strict format
+   * (Cursor's `.mdc` frontmatter, Windsurf's plain rules) are always full-file.
+   */
+  blockable: boolean;
 }
 
 const BANNER =
@@ -31,18 +38,21 @@ export const TARGETS: Record<string, Target> = {
     label: "Claude Code",
     outputPath: "CLAUDE.md",
     render: (body) => `${mdBanner()}\n\n${body}\n`,
+    blockable: true,
   },
   copilot: {
     id: "copilot",
     label: "GitHub Copilot",
     outputPath: ".github/copilot-instructions.md",
     render: (body) => `${mdBanner()}\n\n${body}\n`,
+    blockable: true,
   },
   gemini: {
     id: "gemini",
     label: "Gemini CLI",
     outputPath: "GEMINI.md",
     render: (body) => `${mdBanner()}\n\n${body}\n`,
+    blockable: true,
   },
   cursor: {
     id: "cursor",
@@ -59,11 +69,13 @@ export const TARGETS: Record<string, Target> = {
         body,
         "",
       ].join("\n"),
+    blockable: false,
   },
   windsurf: {
     id: "windsurf",
     label: "Windsurf",
     outputPath: ".windsurfrules",
     render: (body) => `${textBanner()}\n\n${body}\n`,
+    blockable: false,
   },
 };

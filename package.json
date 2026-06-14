@@ -1,6 +1,6 @@
 {
   "name": "onerule",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Write AGENTS.md once. Sync your AI coding rules to Claude Code, Cursor, Copilot, Gemini, Windsurf, and more.",
   "type": "module",
   "bin": {
@@ -35,7 +35,7 @@
   "author": "Mr-Gondal",
   "repository": {
     "type": "git",
-    "url": "https://github.com/USERNAME/onerule.git"
+    "url": "https://github.com/Mr-Gondal/Onerule.git"
   },
   "dependencies": {
     "cac": "^6.7.14",

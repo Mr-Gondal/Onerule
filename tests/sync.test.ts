@@ -54,4 +54,52 @@ describe("onerule", () => {
     rmSync(join(dir, "CLAUDE.md"));
     expect(check(dir)).toBe(1);
   });
+
+  it("block mode preserves hand-written content outside the markers", () => {
+    writeFileSync(join(dir, "AGENTS.md"), "# Rules\n\nUse TypeScript.");
+    // A CLAUDE.md the developer wrote by hand, with no OneRule markers yet.
+    writeFileSync(join(dir, "CLAUDE.md"), "# My hand-written notes\n\nKeep me!");
+
+    sync(dir); // default mode is "block"
+
+    const out = readFileSync(join(dir, "CLAUDE.md"), "utf8");
+    expect(out).toContain("Keep me!"); // hand-written content survives
+    expect(out).toContain("Use TypeScript."); // synced content is added
+    expect(out).toContain("<!-- onerule:start");
+    expect(out).toContain("<!-- onerule:end -->");
+  });
+
+  it("block mode updates only the managed block, leaving notes intact", () => {
+    writeFileSync(join(dir, "CLAUDE.md"), "# Notes\n\nKeep me!");
+    writeFileSync(join(dir, "AGENTS.md"), "# Rules\n\nUse TypeScript.");
+    sync(dir);
+
+    writeFileSync(join(dir, "AGENTS.md"), "# Rules\n\nUse Rust.");
+    sync(dir);
+
+    const out = readFileSync(join(dir, "CLAUDE.md"), "utf8");
+    expect(out).toContain("Keep me!");
+    expect(out).toContain("Use Rust.");
+    expect(out).not.toContain("Use TypeScript."); // old block content replaced
+    // Exactly one managed block (no duplication on re-sync).
+    expect(out.split("<!-- onerule:start").length - 1).toBe(1);
+  });
+
+  it("block mode is idempotent (check passes after sync)", () => {
+    writeFileSync(join(dir, "CLAUDE.md"), "# Notes\n\nKeep me!");
+    writeFileSync(join(dir, "AGENTS.md"), "# Rules\n\nUse TypeScript.");
+    sync(dir);
+    expect(check(dir)).toBe(0);
+  });
+
+  it("file mode overwrites the whole file", () => {
+    writeFileSync(join(dir, "CLAUDE.md"), "# Hand-written\n\nClobber me.");
+    writeFileSync(join(dir, "AGENTS.md"), "# Rules\n\nUse TypeScript.");
+    sync(dir, "file");
+
+    const out = readFileSync(join(dir, "CLAUDE.md"), "utf8");
+    expect(out).not.toContain("Clobber me."); // whole file replaced
+    expect(out).toContain("Use TypeScript.");
+    expect(out).not.toContain("<!-- onerule:start"); // no markers in file mode
+  });
 });
