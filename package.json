@@ -1,0 +1,50 @@
+{
+  "name": "onerule",
+  "version": "0.1.0",
+  "description": "Write AGENTS.md once. Sync your AI coding rules to Claude Code, Cursor, Copilot, Gemini, Windsurf, and more.",
+  "type": "module",
+  "bin": {
+    "onerule": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --clean",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "ai",
+    "cli",
+    "developer-tools",
+    "agents",
+    "agents-md",
+    "claude-code",
+    "cursor",
+    "copilot",
+    "gemini",
+    "windsurf",
+    "mcp"
+  ],
+  "license": "MIT",
+  "author": "Mr-Gondal",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/USERNAME/onerule.git"
+  },
+  "dependencies": {
+    "cac": "^6.7.14",
+    "picocolors": "^1.0.1"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

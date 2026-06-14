@@ -1,2 +1,6 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Normalize line endings: store text as LF in the repo, check out native locally.
+* text=auto eol=lf
+
+# Generated/output files
+*.png binary
+*.gif binary
