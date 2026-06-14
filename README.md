@@ -118,8 +118,4 @@ New agents and tools are the easiest contribution — see [CONTRIBUTING.md](CONT
 
 ## License
 
-<<<<<<< HEAD
 [MIT](LICENSE) © Mr-Gondal
-=======
-[MIT](LICENSE) © Waseem Hanif
->>>>>>> d569a5a82f1090cfd8bbb4065b6b36b6aad512ec

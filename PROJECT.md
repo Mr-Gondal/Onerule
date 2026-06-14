@@ -3,11 +3,7 @@
 > **One-line pitch:** Write `AGENTS.md` once. OneRule syncs your AI coding rules to Claude Code, Cursor, Copilot, Gemini, Windsurf, and more — and fails CI when they drift.
 
 Status: **v0.1 (MVP in progress)**
-<<<<<<< HEAD
 Author: Mr-Gondal
-=======
-Author: Waseem Hanif
->>>>>>> d569a5a82f1090cfd8bbb4065b6b36b6aad512ec
 License: MIT
 Last updated: 2026-06-14
 

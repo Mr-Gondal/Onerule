@@ -32,11 +32,7 @@
     "mcp"
   ],
   "license": "MIT",
-<<<<<<< HEAD
   "author": "Mr-Gondal",
-=======
-  "author": "Waseem Hanif",
->>>>>>> d569a5a82f1090cfd8bbb4065b6b36b6aad512ec
   "repository": {
     "type": "git",
     "url": "https://github.com/USERNAME/onerule.git"
